@@ -1,0 +1,23 @@
+{
+  "name": "gemini-live-voice-react",
+  "version": "0.1.0",
+  "description": "A React hook for Gemini Live speech-to-speech — with barge-in that actually works.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nitzan Bar-Ness",
+  "scripts": {
+    "dev": "bun --hot example/server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@google/genai": "^2.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5"
+  }
+}
