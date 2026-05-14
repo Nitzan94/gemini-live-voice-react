@@ -58,7 +58,7 @@ function KeyGate({ onSubmit }: { onSubmit: (key: string) => void }) {
         <h1 style={styles.h1}>gemini-live-voice-react</h1>
         <p style={styles.sub}>
           A live playground for the open-source voice hook. Paste a Gemini API
-          key to try it — speech-to-speech with barge-in that actually works.
+          key to try it — speech-to-speech.
         </p>
         <form
           onSubmit={(e) => {
