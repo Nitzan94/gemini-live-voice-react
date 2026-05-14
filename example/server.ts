@@ -3,6 +3,7 @@
 
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 import index from "./index.html";
+import { VOICES, DEFAULT_VOICE } from "./voices";
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
@@ -28,7 +29,13 @@ You have one tool: set_accent_color(color). Call it whenever the user asks to ch
 // Mint a one-use ephemeral token. This is the endpoint the hook's `mintToken`
 // prop calls — in a real app you'd add auth, rate limiting, and per-user config
 // here before creating the token.
-async function mint(): Promise<Response> {
+async function mint(req: Request): Promise<Response> {
+  // Validate the requested voice at the boundary — only an allowlisted value
+  // gets baked into the token. The browser sends a string; trust nothing.
+  const body: { voice?: string } = await req.json().catch(() => ({}));
+  const voiceName =
+    body.voice && VOICES.includes(body.voice) ? body.voice : DEFAULT_VOICE;
+
   // apiVersion v1alpha is mandatory for ephemeral tokens — authTokens.create is
   // only mapped on the alpha surface; v1beta 404s with no useful error.
   const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: "v1alpha" } });
@@ -45,6 +52,9 @@ async function mint(): Promise<Response> {
           model: MODEL,
           config: {
             responseModalities: [Modality.AUDIO],
+            speechConfig: {
+              voiceConfig: { prebuiltVoiceConfig: { voiceName } },
+            },
             inputAudioTranscription: {},
             outputAudioTranscription: {},
             systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },

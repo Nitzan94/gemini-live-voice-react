@@ -30,7 +30,9 @@ cp .env.example .env      # then add your GEMINI_API_KEY
 bun dev                   # → http://localhost:3000
 ```
 
-Click **Start voice**, allow the mic, and the assistant greets you. Talk over it mid-sentence — it stops. Ask it to "change the color to blue" to watch a tool call round-trip. Open the console (`debug: true` is on in the demo) to see the playback queue depth and `INTERRUPTED` events.
+Pick a voice, click **Start voice**, allow the mic, and the assistant greets you. Talk over it mid-sentence — it stops. Ask it to "change the color to blue" to watch a tool call round-trip. Open the console (`debug: true` is on in the demo) to see the playback queue depth and `INTERRUPTED` events.
+
+The voice picker is a good illustration of the prop seam: the chosen voice is baked into the ephemeral token server-side, so it rides along in `mintToken` — adding the picker needed zero changes to the hook.
 
 The demo's Bun server (`example/server.ts`) serves the app *and* mints ephemeral tokens — your API key stays server-side. That's the pattern your real app should follow too.
 

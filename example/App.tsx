@@ -6,6 +6,7 @@ import {
   useGeminiLiveVoice,
   type LiveToolResponse,
 } from "../src/useGeminiLiveVoice";
+import { VOICES, DEFAULT_VOICE } from "./voices";
 
 const ACCENTS: Record<string, string> = {
   orange: "#ff6432",
@@ -18,6 +19,7 @@ const ACCENTS: Record<string, string> = {
 export function App() {
   const [enabled, setEnabled] = useState(false);
   const [accent, setAccent] = useState("orange");
+  const [voice, setVoice] = useState(DEFAULT_VOICE);
 
   const { state, errorMessage, transcripts } = useGeminiLiveVoice({
     enabled,
@@ -28,7 +30,14 @@ export function App() {
     // Seam 1 — mint an ephemeral token. Server-side, so the API key never
     // reaches the browser. See example/server.ts.
     mintToken: async () => {
-      const res = await fetch("/api/mint", { method: "POST" });
+      // The chosen voice rides along to the mint endpoint, which bakes it into
+      // the ephemeral token. The hook itself never sees it — adding this picker
+      // needed zero hook changes.
+      const res = await fetch("/api/mint", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ voice }),
+      });
       if (!res.ok) {
         throw new Error(
           "Couldn't mint a token — is GEMINI_API_KEY set? See the README.",
@@ -79,6 +88,27 @@ export function App() {
           Talk over the bot mid-sentence and it stops. Ask it to change the
           accent color to see a tool call round-trip.
         </p>
+
+        <div style={styles.pickerRow}>
+          <label style={styles.pickerLabel} htmlFor="voice">
+            Voice
+          </label>
+          <select
+            id="voice"
+            value={voice}
+            onChange={(e) => setVoice(e.target.value)}
+            // Voice is fixed for a session — it's baked into the token. Lock the
+            // picker once connected; a change applies on the next Start.
+            disabled={state !== "idle"}
+            style={styles.picker}
+          >
+            {VOICES.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <button
           type="button"
@@ -135,7 +165,22 @@ const styles: Record<string, CSSProperties> = {
     boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06)",
   },
   h1: { margin: "0 0 6px", fontSize: 22, letterSpacing: "-0.01em" },
-  sub: { margin: "0 0 24px", color: "#666", fontSize: 14, lineHeight: 1.6 },
+  sub: { margin: "0 0 20px", color: "#666", fontSize: 14, lineHeight: 1.6 },
+  pickerRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 14,
+  },
+  pickerLabel: { fontSize: 13, fontWeight: 600, color: "#444" },
+  picker: {
+    flex: 1,
+    padding: "8px 10px",
+    fontSize: 14,
+    borderRadius: 8,
+    border: "1px solid #ddd",
+    background: "#fff",
+  },
   mic: {
     width: "100%",
     padding: "14px 0",
