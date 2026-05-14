@@ -7,6 +7,7 @@
   "author": "Nitzan Bar-Ness",
   "scripts": {
     "dev": "bun --hot example/server.ts",
+    "build:playground": "bun build playground/index.html --outdir dist --minify",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

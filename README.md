@@ -36,6 +36,16 @@ The voice picker is a good illustration of the prop seam: the chosen voice is ba
 
 The demo's Bun server (`example/server.ts`) serves the app *and* mints ephemeral tokens — your API key stays server-side. That's the pattern your real app should follow too.
 
+## Hosted playground
+
+`playground/` is a deploy-anywhere static variant — anyone pastes their own Gemini key and tries the hook with no install. The key is used **only in the browser** to mint short-lived tokens directly with Google (CORS on the `authTokens` endpoint allows this); it never touches a server.
+
+```sh
+bun run build:playground   # → dist/
+```
+
+`vercel.json` is wired for one-click Vercel deploys (static, no serverless functions). This is a *playground* pattern — a real app should still mint server-side (`example/`) so end users never handle a key. Both `example/` and `playground/` share `example/session-config.ts`, so they run the identical assistant.
+
 ## API
 
 `useGeminiLiveVoice(args)` — args:

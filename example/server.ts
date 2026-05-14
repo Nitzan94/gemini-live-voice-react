@@ -1,9 +1,10 @@
 // ABOUTME: Bun fullstack server for the demo — serves the app + mints Live tokens.
 // ABOUTME: The GEMINI_API_KEY lives here, server-side; it never reaches the browser.
 
-import { GoogleGenAI, Modality, Type } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 import index from "./index.html";
 import { VOICES, DEFAULT_VOICE } from "./voices";
+import { MODEL, SYSTEM_PROMPT, TOOLS } from "./session-config";
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
@@ -13,18 +14,6 @@ if (!apiKey) {
   );
   process.exit(1);
 }
-
-// Audio-native Live model. Swap for any Gemini Live model id.
-const MODEL = "gemini-3.1-flash-live-preview";
-
-// System prompt + tools are baked into the ephemeral token's
-// liveConnectConstraints — the browser can't change them, so a leaked token is
-// only ever this exact assistant.
-const SYSTEM_PROMPT = `You are a friendly voice assistant demoing the gemini-live-voice-react open-source template. Keep every reply short and conversational — one or two sentences.
-
-When the session opens you will receive a single "[greeting]" cue. Respond with one short spoken sentence: introduce yourself and invite the user to chat or to ask you to change the page's accent color.
-
-You have one tool: set_accent_color(color). Call it whenever the user asks to change the color, then briefly confirm out loud. Valid colors: orange, blue, green, pink, purple. Do not call the tool for anything else.`;
 
 // Mint a one-use ephemeral token. This is the endpoint the hook's `mintToken`
 // prop calls — in a real app you'd add auth, rate limiting, and per-user config
@@ -58,27 +47,7 @@ async function mint(req: Request): Promise<Response> {
             inputAudioTranscription: {},
             outputAudioTranscription: {},
             systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            tools: [
-              {
-                functionDeclarations: [
-                  {
-                    name: "set_accent_color",
-                    description:
-                      "Change the demo page's accent color. Call when the user asks to change the color.",
-                    parameters: {
-                      type: Type.OBJECT,
-                      properties: {
-                        color: {
-                          type: Type.STRING,
-                          enum: ["orange", "blue", "green", "pink", "purple"],
-                        },
-                      },
-                      required: ["color"],
-                    },
-                  },
-                ],
-              },
-            ],
+            tools: TOOLS,
           },
         },
       },
